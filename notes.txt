@@ -1,0 +1,19 @@
+Analysis of a SI epidemic spreading in a dynamic complex network ("communication network of the Linux kernel mailing list"):
+
+- Analysis and study of the network (descriptors, plots, distributions, communities)
+
+- Study infection propagation starting from specific nodes and perform comparisons
+
+- Analyze time of infection of the nodes,
+
+- Speed of epidemic spreding for different initial infected node (and infection probabilities)
+
+- Study time to infect specific nodes,
+
+-Analyze possibility to immunitize some nodes or reduce their infection probabilities
+
+- (possibly develop also a SIR epidemic spreading model)
+
+
+1- create another file with lines ordered by timestamp
+2- create compressed network file with node1, node2, weight(equal to num of links)
