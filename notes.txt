@@ -17,3 +17,14 @@ Analysis of a SI epidemic spreading in a dynamic complex network ("communication
 
 1- create another file with lines ordered by timestamp
 2- create compressed network file with node1, node2, weight(equal to num of links)
+
+
+
+
+
+
+1- Plot of the network
+2- Find centralities and sorted plots
+3- Average simulations
+4- Store time of infection of each node
+5- X axis put time in seconds after first infection
