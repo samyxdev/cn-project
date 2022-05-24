@@ -2,8 +2,7 @@ import networkx as nx
 import numpy as np
 import random
 from tqdm import tqdm
-import matplotlib.pyplot as plt
-import copy
+
 
 def read_network_static_singular(file, comment="%", delim="\t"):
     g = nx.MultiDiGraph() # directed graph with multiple edges
@@ -37,9 +36,13 @@ def read_network_static_singular(file, comment="%", delim="\t"):
 
     return gf
 
+
+
 def get_biggest_weakly_connected_component(g):
     biggest_comp_nodes = max(nx.weakly_connected_components(g), key=len)
     return g.subgraph(biggest_comp_nodes)
+
+
 
 def read_network_temporal(file, comment="%", delim="\t"):
     time_dict = {} # initialize dictionary
@@ -72,6 +75,8 @@ def read_network_temporal(file, comment="%", delim="\t"):
 
     # returns the dictionary and the nodes set
     return time_dict, nodes
+
+
 
 # immunized_nodes = list of (eventually) immune nodes
 # infection_prob = p parameter of infecting a susceptible node
@@ -132,6 +137,8 @@ def simulate_SI(time_dict, seed, nodes, n_nodes, infection_prob, immunized_nodes
 
     # return tho and nodes infection time
     return rho_list/n_nodes, infection_times
+
+
 
 def run_multiple_simulations(n_simulations, time_dict, seed, nodes, n_nodes, infection_prob, immunized_nodes= []):
     rho_lists = []

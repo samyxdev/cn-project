@@ -28,3 +28,15 @@ Analysis of a SI epidemic spreading in a dynamic complex network ("communication
 3- Average simulations
 4- Store time of infection of each node
 5- X axis put time in seconds after first infection
+
+
+Last list :
+- p=1
+- Effect of p on mean infection time
+- Effect of seed nodes on rho(t)
+- Correlation study on median infection time of each node (different seeds for each it):
+    - Clustering
+    - Degree
+    - Different centrality measures
+    - Strengh
+-
