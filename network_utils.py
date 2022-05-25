@@ -124,7 +124,7 @@ def plot_linear_PDF(G, name='', nbins = 15):
     plt.ylabel('PDF', fontsize=13)
     plt.hist(degrees, bins=nbins, density = True, cumulative = False)
     plt.tight_layout()
-    plt.style.use('ggplot')
+    plt.style.use('seaborn-darkgrid')
 
 # PDF histogram in Log-Log scale
 def plot_loglog_PDF(G, name="", nbins=20):
@@ -141,7 +141,7 @@ def plot_loglog_PDF(G, name="", nbins=20):
     plt.xscale('log')
     plt.hist(degrees, bins=bins, density = True, cumulative = False)
     plt.tight_layout()
-    #plt.style.use('ggplot')
+    plt.style.use('seaborn-darkgrid')
 
 # CCDF histogram in linear scale
 def plot_linear_CCDF(G, name="", nbins=30):
@@ -152,7 +152,7 @@ def plot_linear_CCDF(G, name="", nbins=30):
     plt.ylabel('CCDF', fontsize=13)
     plt.hist(degrees, bins=nbins, density = True, cumulative = -1)
     plt.tight_layout()
-    #plt.style.use('ggplot')
+    plt.style.use('seaborn-darkgrid')
 
 # CCDF histogram in Log-Log scale
 def plot_loglog_CCDF(G, name="", nbins=30):
@@ -169,4 +169,4 @@ def plot_loglog_CCDF(G, name="", nbins=30):
     plt.xscale('log')
     plt.hist(degrees, bins=bins, density = True, cumulative = -1)
     plt.tight_layout()
-    #plt.style.use('ggplot')
+    plt.style.use('seaborn-darkgrid')
