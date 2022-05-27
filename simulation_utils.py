@@ -84,8 +84,8 @@ def read_network_temporal(file, comment="%", delim="\t"):
                     # add new tuple/edge to the list indexed by that timestamp
                     time_dict[data[3]] += [(data[0], data[1])]
 
-    # returns the dictionary and the order nodes list
-    return time_dict, sorted(nodes)
+    # returns the dictionary(sorted by timestamps) and the order nodes list
+    return dict(sorted(td.items())), sorted(nodes)
 
 
 
@@ -177,15 +177,40 @@ def run_multiple_simulations(n_simulations, time_dict, seed, nodes, n_nodes, inf
     return rho_final/n_simulations
 
 
+def run_multiple_simulations2(n_simulations, time_dict, seed, nodes, n_nodes, infection_prob, immunized_nodes= []):
+    rho_lists = []
+    #rho_list = np.zeros(len(time_dict)) # Initial rho + one rho per timestep
+    infection_times_lists = []
+
+    # main loop
+    for i in tqdm(range(n_simulations)):
+        rho_list, infection_times = simulate_SI(time_dict, seed, nodes, n_nodes, infection_prob, immunized_nodes)
+        rho_lists.append(rho_list)
+        infection_times_lists.append(infection_times.values())
+
+    # build average rho and infection times over the lists
+    rho_final = np.zeros(len(time_dict))
+    infection_times_final = []
+    for i in range(n_simulations):
+        for j in range(len(rho_final)):
+            rho_final[j] +=  rho_lists[i][j]
+        for j in range(n_nodes):
+            infection_times_final[j] += infection_times_lists[i][j] 
+
+
+    return rho_final/n_simulations, infection_times_final/n_simulations
+
+
 # prevalence plot 
 def plot_prevalence(time_list, rho_lists, labels=[]):
     plt.figure(figsize=(12,6))
     for i in range(len(rho_lists)):
         plt.plot(time_list, rho_lists[i], label = labels[i])
         plt.title("ρ in function of time", fontsize=15)
-        plt.xlabel("Time of infection (from zero)", fontsize=15)
+        plt.xlabel("Time after first event (from zero)", fontsize=15)
         plt.ylabel("ρ", fontsize=15)
-        plt.legend(loc='lower right')
+        plt.yticks([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0])
+        plt.legend(loc='upper left')
         plt.style.use('seaborn-darkgrid')
         plt.tight_layout()
 
