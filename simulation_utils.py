@@ -87,6 +87,42 @@ def read_network_temporal(file, comment="%", delim="\t"):
     # returns the dictionary(sorted by timestamps) and the order nodes list
     return dict(sorted(td.items())), sorted(nodes)
 
+def read_network_temporal_filtered(file, nodes_to_keep, comment="%", delim="\t"):
+    time_dict = {} # initialize dictionary
+    nodes = set() # set of network nodes
+
+    # open the file in read mode
+    with open(file, "r") as f:
+
+        # iterate over the lines
+        for l in f:
+            # discard comment lines
+            if l[0] != comment:
+
+                # put edge data into a list of integers
+                data = list(map(int, l.strip().split(delim)))
+
+                # Because we have the biggest weakly compnent graph, we just
+                # need to to check one side of the edge to ensure that this is a
+                # node to skip (or to keep)
+                if not data[0] not in nodes_to_keep:
+                    # add nodes to the set of nodes
+                    nodes.update({data[0], data[1]})
+
+                    # new timestamp
+                    if not data[3] in time_dict.keys():
+
+                        # add edge as a tuple in the list of the corresponding timestamp
+                        time_dict[data[3]] = [(data[0], data[1])]
+
+                    # already present timestamp/key
+                    else:
+                        # add new tuple/edge to the list indexed by that timestamp
+                        time_dict[data[3]] += [(data[0], data[1])]
+
+    # returns the dictionary(sorted by timestamps) and the order nodes list
+    return dict(sorted(time_dict.items())), sorted(nodes)
+
 
 
 # immunized_nodes = list of (eventually) immune nodes
@@ -171,16 +207,20 @@ def run_multiple_simulations(n_simulations, time_dict, seed, nodes, n_nodes, inf
             rho_final[j] +=  rho_lists[i][j]
 
         #for j in range(n_nodes):
-        #    infection_times[i] 
+        #    infection_times[i]
 
 
     return rho_final/n_simulations
 
 
 def run_multiple_simulations2(n_simulations, time_dict, seed, nodes, n_nodes, infection_prob, immunized_nodes= []):
+    """Apply multiple simulations having defined seed nodes, infection probability and immunized_nodes if any.
+
+    Return the average infection coefficient (rho) and average infection time, over all simulations"""
     rho_lists = []
     #rho_list = np.zeros(len(time_dict)) # Initial rho + one rho per timestep
     infection_times_lists = []
+
 
     # main loop
     for i in tqdm(range(n_simulations)):
@@ -190,18 +230,18 @@ def run_multiple_simulations2(n_simulations, time_dict, seed, nodes, n_nodes, in
 
     # build average rho and infection times over the lists
     rho_final = np.zeros(len(time_dict))
-    infection_times_final = []
+    infection_times_final = np.zeros(len(nodes))
     for i in range(n_simulations):
         for j in range(len(rho_final)):
             rho_final[j] +=  rho_lists[i][j]
         for j in range(n_nodes):
-            infection_times_final[j] += infection_times_lists[i][j] 
+            infection_times_final[j] += infection_times_lists[i][j]
 
 
     return rho_final/n_simulations, infection_times_final/n_simulations
 
 
-# prevalence plot 
+# prevalence plot
 def plot_prevalence(time_list, rho_lists, labels=[]):
     plt.figure(figsize=(12,6))
     for i in range(len(rho_lists)):
@@ -225,19 +265,19 @@ def random_group(possible_states, probabilites):
 
         for i, st in enumerate(possible_states):
             choices += [st]*int(probabilites[i] * 10)
-        
-        return np.random.choice(choices)   
-    
+
+        return np.random.choice(choices)
 
 
 
-    
+
+
 def simulation_step(tx_state, rx_state, rx_inf_prob):
         """Apply one step of the simulation to the nodes, based on their state (Infected or not)
         and on the reciever infection probability rx_inf.
         Return the new state and a int equals to 1 if the state has changed, 0 otherwise
 
-        TODO: In case of implemting SI with Recovery (SIR), then choice must be -1 if recovery 
+        TODO: In case of implemting SI with Recovery (SIR), then choice must be -1 if recovery
         and 1 for infection (for simulation_loop)
         """
         if tx_state and not rx_state:
@@ -247,7 +287,7 @@ def simulation_step(tx_state, rx_state, rx_inf_prob):
             return rx_state, False
 
         #return np.random.binomial(1, rx_inf_prob) if tx_state and not rx_state else rx_state
-    
+
 
 def simulation_loop(time_dict, states, n_nodes, inf_prob):
         """Applies an SI simulation based on the contact made at each timestamp.
@@ -256,22 +296,22 @@ def simulation_loop(time_dict, states, n_nodes, inf_prob):
         TODO: Add the support for different probabilities depending on the group of the node
         """
         rho_list = np.zeros(1+len(time_dict)) # Initial rho + one rho per timestep
-        
+
         for i, t in enumerate(time_dict.keys()):
             # For each contact
 
             # To speed up rho calculations, we'll keep track of the number of infected by monitoring
-            # if the state of nodes changed. If they went to infected, we add one to the previously 
+            # if the state of nodes changed. If they went to infected, we add one to the previously
             # saved rho.
             temp_rho = 0
             for contact in time_dict[t]:
                 states[contact[1]], changed = simulation_step(states[contact[0]], states[contact[1]], inf_prob)
 
                 temp_rho += changed
-            
+
             # We always sums the changed as there is no recovery (cf. TODO about SIR in simulation_step)
             rho_list[i+1] = rho_list[i] + temp_rho
-        
+
         return rho_list/(n_nodes+1)
 
 '''
