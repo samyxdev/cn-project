@@ -102,7 +102,7 @@ def read_network_temporal_filtered(file, nodes_to_keep, comment="%", delim="\t")
                 # put edge data into a list of integers
                 data = list(map(int, l.strip().split(delim)))
 
-                # Because we have the biggest weakly compnent graph, we just
+                # Because we'' analyze the biggest weakly compnent graph, we just
                 # need to to check one side of the edge to ensure that this is a
                 # node to skip (or to keep)
                 if not data[0] not in nodes_to_keep:
@@ -212,33 +212,6 @@ def run_multiple_simulations(n_simulations, time_dict, seed, nodes, n_nodes, inf
 
     return rho_final/n_simulations
 
-
-def run_multiple_simulations2(n_simulations, time_dict, seed, nodes, n_nodes, infection_prob, immunized_nodes= []):
-    """Apply multiple simulations having defined seed nodes, infection probability and immunized_nodes if any.
-
-    Return the average infection coefficient (rho) and average infection time, over all simulations"""
-    rho_lists = []
-    #rho_list = np.zeros(len(time_dict)) # Initial rho + one rho per timestep
-    infection_times_lists = []
-
-
-    # main loop
-    for i in tqdm(range(n_simulations)):
-        rho_list, infection_times = simulate_SI(time_dict, seed, nodes, n_nodes, infection_prob, immunized_nodes)
-        rho_lists.append(rho_list)
-        infection_times_lists.append(infection_times.values())
-
-    # build average rho and infection times over the lists
-    rho_final = np.zeros(len(time_dict))
-    infection_times_final = np.zeros(len(nodes))
-    for i in range(n_simulations):
-        for j in range(len(rho_final)):
-            rho_final[j] +=  rho_lists[i][j]
-        for j in range(n_nodes):
-            infection_times_final[j] += infection_times_lists[i][j]
-
-
-    return rho_final/n_simulations, infection_times_final/n_simulations
 
 
 # prevalence plot
