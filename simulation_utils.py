@@ -166,8 +166,8 @@ def simulate_SI(time_dict, seed, nodes, n_nodes, infection_prob, immunized_nodes
             # check if first node in the edge is infected at current timestamp
             if infection_times[edge[0]] <= t:
 
-                # destination node not already infected
-                if infection_times[edge[1]] > t:
+                # infect a destination node only if not already infected and not immunized
+                if infection_times[edge[1]] > t and edge[1] not in immunized_nodes:
 
                     # generate random number in [0,1]
                     prob = random.random()
@@ -240,61 +240,3 @@ def random_group(possible_states, probabilites):
             choices += [st]*int(probabilites[i] * 10)
 
         return np.random.choice(choices)
-
-
-
-
-
-def simulation_step(tx_state, rx_state, rx_inf_prob):
-        """Apply one step of the simulation to the nodes, based on their state (Infected or not)
-        and on the reciever infection probability rx_inf.
-        Return the new state and a int equals to 1 if the state has changed, 0 otherwise
-
-        TODO: In case of implemting SI with Recovery (SIR), then choice must be -1 if recovery
-        and 1 for infection (for simulation_loop)
-        """
-        if tx_state and not rx_state:
-            choice = np.random.binomial(1, rx_inf_prob)
-            return bool(choice), choice
-        else:
-            return rx_state, False
-
-        #return np.random.binomial(1, rx_inf_prob) if tx_state and not rx_state else rx_state
-
-
-def simulation_loop(time_dict, states, n_nodes, inf_prob):
-        """Applies an SI simulation based on the contact made at each timestamp.
-        Returns an array containing the evolution of the rho factor at each timestamp.
-
-        TODO: Add the support for different probabilities depending on the group of the node
-        """
-        rho_list = np.zeros(1+len(time_dict)) # Initial rho + one rho per timestep
-
-        for i, t in enumerate(time_dict.keys()):
-            # For each contact
-
-            # To speed up rho calculations, we'll keep track of the number of infected by monitoring
-            # if the state of nodes changed. If they went to infected, we add one to the previously
-            # saved rho.
-            temp_rho = 0
-            for contact in time_dict[t]:
-                states[contact[1]], changed = simulation_step(states[contact[0]], states[contact[1]], inf_prob)
-
-                temp_rho += changed
-
-            # We always sums the changed as there is no recovery (cf. TODO about SIR in simulation_step)
-            rho_list[i+1] = rho_list[i] + temp_rho
-
-        return rho_list/(n_nodes+1)
-
-'''
-# Simple case: only one group, random selection of initial infected (0 or 1)
-states = dict(zip(nodes, np.random.binomial(1, 0.05, n_nodes)))
-
-# More complicated : Case with different groups
-grps = (1, 2, 3)
-probs = (0.1, 0.4, 0.5)
-#states = dict(zip(nodes, [random_group(grps, probs) for _ in range(n_nodes)]))
-
-rhos = simulation_loop(td, states, n_nodes, 0.3)
-'''
